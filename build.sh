@@ -142,10 +142,18 @@ function buildit() {
 # DEPLOY IN CVMFS PUBLISHER
 ##############################################################################
 
+# Note:
+#      It turns out that the script could not be invoked at deploy stage.
+#      Because when cvmfs_server publish the repositoy, the files under this
+#      repository can not be opened. 
+
+
 function deployit() {
+cat <<EOF
     cvmfs_server transaction juno_nightlies.ihep.ac.cn
     /cvmfs/container.ihep.ac.cn/bin/hep_container exec CentOS7 $self
     cvmfs_server publish -m "nightly build $(date)" juno_nightlies.ihep.ac.cn
+EOF
 }
 
 ##############################################################################
