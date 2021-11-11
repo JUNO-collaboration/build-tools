@@ -141,12 +141,18 @@ function buildit() {
 ##############################################################################
 # DEPLOY IN CVMFS PUBLISHER
 ##############################################################################
-
+#
 # Note:
 #      It turns out that the script could not be invoked at deploy stage.
 #      Because when cvmfs_server publish the repositoy, the files under this
 #      repository can not be opened. 
-
+#
+#      In order to solve this problem, the solution is creating the commands
+#      on the fly, then use bash to invoke it:
+#
+#          bash <<< "$(bash /cvmfs/juno_nightlies.ihep.ac.cn/centos7_amd64_gcc830/b/build-tools/build.sh deployit)"
+#
+#-----------------------------------------------------------------------------
 
 function deployit() {
 cat <<EOF
