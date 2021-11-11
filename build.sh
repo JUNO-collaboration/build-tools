@@ -2,6 +2,7 @@
 # Description: A script to nightily build the JUNO offline software
 # Author: Tao Lin <lintao AT ihep.ac.cn>
 
+
 ##############################################################################
 # Necessary helpers
 ##############################################################################
@@ -18,6 +19,11 @@ function get-current-weekday() {
 ##############################################################################
 # Global environment variables
 ##############################################################################
+
+#-----------------------------------------------------------------------------
+# The script self
+#-----------------------------------------------------------------------------
+self=$(readlink -e $0 2>/dev/null)
 
 #-----------------------------------------------------------------------------
 # The top directory to hold all the daily builds.
@@ -38,7 +44,7 @@ if ! touch $JUNO_NIGHTLIES_TOP/.build; then
     fatal: "The JUNO_NIGHTLIES_TOP ${JUNO_NIGHTLIES_TOP} is read-only"
 fi
 
-export JUNO_NIGHTLIES_WEEKDAY=$(get-current-weekday)
+export JUNO_NIGHTLIES_WEEKDAY=${JUNO_NIGHTLIES_WEEKDAY:-$(get-current-weekday)}
 
 ##############################################################################
 # Helpers
@@ -128,5 +134,23 @@ function buildit() {
     create-latest-link
 }
 
-buildit
+##############################################################################
+# DEPLOY IN CVMFS PUBLISHER
+##############################################################################
+
+function deployit() {
+    cvmfs_server transaction juno_nightlies.ihep.ac.cn
+    /cvmfs/container.ihep.ac.cn/bin/hep_container exec CentOS7 $self
+    cvmfs_server publish -m "nightly build $(date)" juno_nightlies.ihep.ac.cn
+}
+
+##############################################################################
+# MAIN
+##############################################################################
+
+if [ -z "$*" ]; then
+    buildit
+else
+    $*
+fi
 
