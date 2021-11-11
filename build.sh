@@ -36,19 +36,21 @@ export JUNO_NIGHTLIES_TOP=${JUNO_NIGHTLIES_TOP:-/cvmfs/juno_nightlies.ihep.ac.cn
 #-----------------------------------------------------------------------------
 export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/centos7_amd64_gcc830/Pre-Release/J21v2r0-branch}
 
-if [ ! -d "${JUNO_NIGHTLIES_TOP}" ] ; then
-    fatal: "The JUNO_NIGHTLIES_TOP ${JUNO_NIGHTLIES_TOP} does not exist"
-fi
-
-if ! touch $JUNO_NIGHTLIES_TOP/.build; then
-    fatal: "The JUNO_NIGHTLIES_TOP ${JUNO_NIGHTLIES_TOP} is read-only"
-fi
-
 export JUNO_NIGHTLIES_WEEKDAY=${JUNO_NIGHTLIES_WEEKDAY:-$(get-current-weekday)}
 
 ##############################################################################
 # Helpers
 ##############################################################################
+
+function check-writable() {
+    if [ ! -d "${JUNO_NIGHTLIES_TOP}" ] ; then
+	fatal: "The JUNO_NIGHTLIES_TOP ${JUNO_NIGHTLIES_TOP} does not exist"
+    fi
+
+    if ! touch $JUNO_NIGHTLIES_TOP/.build; then
+	fatal: "The JUNO_NIGHTLIES_TOP ${JUNO_NIGHTLIES_TOP} is read-only"
+    fi
+}
 
 function get-workdir-path() {
     echo $JUNO_NIGHTLIES_TOP/$JUNO_NIGHTLIES_WEEKDAY
@@ -118,6 +120,8 @@ function create-latest-link() {
 ##############################################################################
 
 function buildit() {
+    check-writable
+
     prepare-workdir
     goto-workdir
 
