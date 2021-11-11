@@ -10,6 +10,11 @@ function fatal:() {
     exit -1
 }
 
+function get-current-weekday() {
+    date +"%a" # print the abbreviated weekday name (e.g., Sun)
+}
+
+
 ##############################################################################
 # Global environment variables
 ##############################################################################
@@ -33,17 +38,14 @@ if ! touch $JUNO_NIGHTLIES_TOP/.build; then
     fatal: "The JUNO_NIGHTLIES_TOP ${JUNO_NIGHTLIES_TOP} is read-only"
 fi
 
+export JUNO_NIGHTLIES_WEEKDAY=$(get-current-weekday)
+
 ##############################################################################
 # Helpers
 ##############################################################################
-function get-current-weekday() {
-    date +"%a" # print the abbreviated weekday name (e.g., Sun)
-}
 
 function get-workdir-path() {
-    local weekday=$(get-current-weekday)
-    echo $JUNO_NIGHTLIES_TOP/$weekday
-
+    echo $JUNO_NIGHTLIES_TOP/$JUNO_NIGHTLIES_WEEKDAY
 }
 
 function prepare-workdir() {
@@ -65,7 +67,7 @@ function goback-from-workdir() {
 function prepare-envvar() {
     export CMTCONFIG=amd64_linux26 # deprecated: will be removed in the future
     source $JUNOTOP/setup.sh
-    export WORKDIR=$(get-workdir-path)
+    export WORKTOP=$(get-workdir-path)
 }
 
 function checkout-offline() {
@@ -78,6 +80,31 @@ function build-offline() {
     ./build.sh
 
     popd || fatal: "faild to popd"
+}
+
+function prepare-setupscripts() {
+    cat <<EOF > setup.sh
+export JUNOTOP=$JUNOTOP
+export WORKTOP=$WORKTOP
+source \$JUNOTOP/setup.sh
+source \$WORKTOP/offline/InstallArea/setup.sh
+EOF
+
+    cat <<EOF > setup.csh
+export JUNOTOP=$JUNOTOP
+export WORKTOP=$WORKTOP
+source \$JUNOTOP/setup.csh
+source \$WORKTOP/offline/InstallArea/setup.csh
+EOF
+
+}
+
+function create-latest-link() {
+    pushd $JUNO_NIGHTLIES_TOP
+
+    ln -sfn $JUNO_NIGHTLIES_WEEKDAY latest
+
+    popd
 }
 
 ##############################################################################
@@ -94,7 +121,11 @@ function buildit() {
 
     build-offline
 
+    prepare-setupscripts
+
     goback-from-workdir
+
+    create-latest-link
 }
 
 buildit
