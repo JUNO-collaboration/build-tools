@@ -69,7 +69,15 @@ function prepare-envvar() {
 }
 
 function checkout-offline() {
-    svn co https://juno.ihep.ac.cn/svn/offline/trunk offline
+    svn co https://juno.ihep.ac.cn/svn/offline/trunk offline || fatal: "failed to checkout offline"
+}
+
+function build-offline() {
+    pushd offline || fatal: "failed to pushd offline"
+
+    ./build.sh
+
+    popd || fatal: "faild to popd"
 }
 
 ##############################################################################
@@ -83,6 +91,8 @@ function buildit() {
     prepare-envvar
 
     checkout-offline
+
+    build-offline
 
     goback-from-workdir
 }
