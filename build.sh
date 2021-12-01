@@ -99,8 +99,8 @@ source \$WORKTOP/offline/InstallArea/setup.sh
 EOF
 
     cat <<EOF > setup.csh
-export JUNOTOP=$JUNOTOP
-export WORKTOP=$WORKTOP
+setenv JUNOTOP $JUNOTOP
+setenv WORKTOP $WORKTOP
 source \$JUNOTOP/setup.csh
 source \$WORKTOP/offline/InstallArea/setup.csh
 EOF
