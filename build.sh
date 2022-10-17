@@ -216,6 +216,7 @@ function buildit() {
 function deployit() {
 cat <<EOF
     cvmfs_server transaction juno_nightlies.ihep.ac.cn
+    export APPTAINER_BINDPATH=/cvmfs
     /cvmfs/container.ihep.ac.cn/bin/hep_container exec CentOS7 $self
     cvmfs_server publish -m "nightly build $(date)" juno_nightlies.ihep.ac.cn
 EOF
