@@ -28,13 +28,13 @@ self=$(readlink -e $0 2>/dev/null)
 #-----------------------------------------------------------------------------
 # The top directory to hold all the daily builds.
 #-----------------------------------------------------------------------------
-export JUNO_NIGHTLIES_TOP=${JUNO_NIGHTLIES_TOP:-/cvmfs/juno_nightlies.ihep.ac.cn/centos7_amd64_gcc830/b}
+export JUNO_NIGHTLIES_TOP=${JUNO_NIGHTLIES_TOP:-/cvmfs/juno_nightlies.ihep.ac.cn/centos7_amd64_gcc1120/b}
 
 #-----------------------------------------------------------------------------
 # Even though this is a nightly build, in order to reduce the build time, 
 # reuse the existing external libraries. 
 #-----------------------------------------------------------------------------
-export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/centos7_amd64_gcc830/Pre-Release/J22.1.x}
+export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/centos7_amd64_gcc1120/Pre-Release/J22.2.x}
 
 export JUNO_NIGHTLIES_WEEKDAY=${JUNO_NIGHTLIES_WEEKDAY:-$(get-current-weekday)}
 
@@ -73,16 +73,26 @@ function goback-from-workdir() {
 }
 
 function prepare-envvar() {
-    export CMTCONFIG=amd64_linux26 # deprecated: will be removed in the future
     source $JUNOTOP/setup.sh
     export WORKTOP=$(get-workdir-path)
 }
 
 function checkout-offline() {
-    svn co https://juno.ihep.ac.cn/svn/offline/trunk offline || fatal: "failed to checkout offline"
+    local repo=${1:-git}; shift
+
+    case $repo in
+	svn)
+	    svn co https://juno.ihep.ac.cn/svn/offline/trunk offline || fatal: "failed to checkout offline"
+	    ;;
+	git)
+	    git clone git@code.ihep.ac.cn:JUNO/offline/junosw.git || fatal: "failed to clone junosw"
+	    ;;
+	*)
+	    ;;
+    esac
 }
 
-function build-offline() {
+function build-offline-svn() {
     pushd offline || fatal: "failed to pushd offline"
 
     ./build.sh
@@ -90,19 +100,55 @@ function build-offline() {
     popd || fatal: "faild to popd"
 }
 
+function build-offline-git() {
+    pushd junosw || fatal: "failed to pushd offline"
+
+    ./build.sh
+
+    popd || fatal: "faild to popd"
+
+}
+
+function build-offline() {
+    local repo=${1:-git}; shift
+
+    case $repo in
+	svn)
+	    build-offline-svn
+	    ;;
+	git)
+	    build-offline-git
+	    ;;
+	*)
+	    ;;
+    esac
+
+}
+
 function prepare-setupscripts() {
+    local repo=${1:-git}; shift
+
+    local projectname=junosw
+    case $repo in
+	svn)
+	    projectname=offline
+	    ;;
+	*)
+	    ;;
+    esac
+
     cat <<EOF > setup.sh
 export JUNOTOP=$JUNOTOP
 export WORKTOP=$WORKTOP
 source \$JUNOTOP/setup.sh
-source \$WORKTOP/offline/InstallArea/setup.sh
+source \$WORKTOP/${projectname}/InstallArea/setup.sh
 EOF
 
     cat <<EOF > setup.csh
 setenv JUNOTOP $JUNOTOP
 setenv WORKTOP $WORKTOP
 source \$JUNOTOP/setup.csh
-source \$WORKTOP/offline/InstallArea/setup.csh
+source \$WORKTOP/${projectname}/InstallArea/setup.csh
 EOF
 
 }
