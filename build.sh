@@ -77,15 +77,28 @@ function prepare-envvar() {
     export WORKTOP=$(get-workdir-path)
 }
 
+function checkout-offline-svn() {
+    svn co https://juno.ihep.ac.cn/svn/offline/trunk offline || fatal: "failed to checkout offline"
+}
+
+function checkout-offline-git() {
+    if [ ! -d "junosw" ]; then
+	git clone git@code.ihep.ac.cn:JUNO/offline/junosw.git || fatal: "failed to clone junosw"
+    else
+	(cd junosw && git pull) || fatal: "failed to update junosw"
+    fi
+
+}
+
 function checkout-offline() {
     local repo=${1:-git}; shift
 
     case $repo in
 	svn)
-	    svn co https://juno.ihep.ac.cn/svn/offline/trunk offline || fatal: "failed to checkout offline"
+	    checkout-offline-svn
 	    ;;
 	git)
-	    git clone git@code.ihep.ac.cn:JUNO/offline/junosw.git || fatal: "failed to clone junosw"
+	    checkout-offline-git
 	    ;;
 	*)
 	    ;;
