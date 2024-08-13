@@ -28,13 +28,13 @@ self=$(readlink -e $0 2>/dev/null)
 #-----------------------------------------------------------------------------
 # The top directory to hold all the daily builds.
 #-----------------------------------------------------------------------------
-export JUNO_NIGHTLIES_TOP=${JUNO_NIGHTLIES_TOP:-/cvmfs/juno_nightlies.ihep.ac.cn/centos7_amd64_gcc1120/b}
+export JUNO_NIGHTLIES_TOP=${JUNO_NIGHTLIES_TOP:-/cvmfs/juno_nightlies.ihep.ac.cn/el9_amd64_gcc11/b}
 
 #-----------------------------------------------------------------------------
 # Even though this is a nightly build, in order to reduce the build time, 
 # reuse the existing external libraries. 
 #-----------------------------------------------------------------------------
-export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/centos7_amd64_gcc1120/Pre-Release/J22.2.x}
+export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/el9_amd64_gcc11/Release/J24.1.2}
 
 export JUNO_NIGHTLIES_WEEKDAY=${JUNO_NIGHTLIES_WEEKDAY:-$(get-current-weekday)}
 
@@ -209,16 +209,19 @@ function buildit() {
 #      In order to solve this problem, the solution is creating the commands
 #      on the fly, then use bash to invoke it:
 #
-#          bash <<< "$(bash /cvmfs/juno_nightlies.ihep.ac.cn/centos7_amd64_gcc830/b/build-tools/build.sh deployit)"
+#          bash <<< "$(bash /cvmfs/juno_nightlies.ihep.ac.cn/el9_amd64_gcc11/b/build-tools/build.sh deployit)"
 #
 #-----------------------------------------------------------------------------
 
 function deployit() {
+    local os=CentOS7
+    os=Alma9imagelink
+
 cat <<EOF
     cvmfs_server transaction juno_nightlies.ihep.ac.cn
     [ -f "$HOME/.ssh/agent" ] && source $HOME/.ssh/agent
     export APPTAINER_BINDPATH=/cvmfs
-    /cvmfs/container.ihep.ac.cn/bin/hep_container exec CentOS7 $self
+    /cvmfs/container.ihep.ac.cn/bin/hep_container exec $os $self
     cvmfs_server publish -m "nightly build $(date)" juno_nightlies.ihep.ac.cn
 EOF
 }
