@@ -215,7 +215,7 @@ function buildit() {
 
 function deployit() {
     local os=CentOS7
-    os=Alma9imagelink
+    os=Alma9
 
 cat <<EOF
     cvmfs_server transaction juno_nightlies.ihep.ac.cn
