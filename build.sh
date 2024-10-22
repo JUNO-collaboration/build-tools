@@ -34,7 +34,7 @@ export JUNO_NIGHTLIES_TOP=${JUNO_NIGHTLIES_TOP:-/cvmfs/juno_nightlies.ihep.ac.cn
 # Even though this is a nightly build, in order to reduce the build time, 
 # reuse the existing external libraries. 
 #-----------------------------------------------------------------------------
-export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/el9_amd64_gcc11/Release/J24.1.2}
+export JUNOTOP=${JUNOTOP:-/cvmfs/juno.ihep.ac.cn/el9_amd64_gcc11/Release/J24.2.0}
 
 export JUNO_NIGHTLIES_WEEKDAY=${JUNO_NIGHTLIES_WEEKDAY:-$(get-current-weekday)}
 
