@@ -108,6 +108,8 @@ function checkout-offline() {
 function build-offline-svn() {
     pushd offline || fatal: "failed to pushd offline"
 
+    # clean first
+    rm -rf build InstallArea
     ./build.sh
 
     popd || fatal: "faild to popd"
@@ -116,6 +118,7 @@ function build-offline-svn() {
 function build-offline-git() {
     pushd junosw || fatal: "failed to pushd offline"
 
+    rm -rf build InstallArea
     ./build.sh
 
     popd || fatal: "faild to popd"
